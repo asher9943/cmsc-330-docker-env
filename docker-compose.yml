@@ -1,0 +1,35 @@
+version: "3.9"
+
+# This is a docker compose file that specifies the behavior of bringing up a
+# 330 environment
+# Also take a look at the Dockerfile (under environment)
+
+services:
+  cmsc-330-testing:
+    # Change this to rename the image
+    image: cmsc-330-env:latest
+
+    # These settings allow for opening an interactive shell
+    stdin_open: true
+    tty: true
+
+    volumes:
+      # Using a bind mount for simplicity, copy the entire projects directory
+      # Note that this is like a shared folder, any changes made in the docker
+      # container will be reflected on the host
+      - type: bind
+        source: ./projects
+        target: /root/projects
+
+      # Only tested on MacOS, forwards the ssh agent
+      - type: bind
+        source: /run/host-services/ssh-auth.sock
+        target: /run/host-services/ssh-auth.sock
+
+    environment:
+      - SSH_AUTH_SOCK=/run/host-services/ssh-auth.sock
+
+    build:
+      # Dockerfile is stored in subfolder environment, so you can use 
+      # `docker compose build` to make or update the image
+      context: ./environment
